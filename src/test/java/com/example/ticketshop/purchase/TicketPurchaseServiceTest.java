@@ -1,17 +1,22 @@
 package com.example.ticketshop.purchase;
 
 import static com.example.ticketshop.MoneyAssertions.assertAmount;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.example.ticketshop.event.Event;
 import com.example.ticketshop.event.EventRepository;
+import com.example.ticketshop.event.InMemoryEventRepository;
+import com.example.ticketshop.event.UnknownEventException;
 import com.example.ticketshop.pricing.Attendee;
 import com.example.ticketshop.pricing.TicketPriceCalculator;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -45,26 +50,42 @@ class TicketPurchaseServiceTest {
     }
 
     @Test
-    @Disabled("Exercise 6.1")
     void storesThePurchase() {
-        // TODO Exercise 6.1: verify that the purchase is saved
+        when(eventRepository.findById("summer-festival")).thenReturn(Optional.of(SUMMER_FESTIVAL));
+
+        var purchase = purchaseService.purchase("summer-festival", List.of(new Attendee(30, false)));
+
+        verify(purchaseRepository).save(purchase);
     }
 
     @Test
-    @Disabled("Exercise 6.2")
     void rejectsUnknownEvent() {
-        // TODO Exercise 6.2: stub findById with Optional.empty() and expect an UnknownEventException
+        when(eventRepository.findById("opera-gala")).thenReturn(Optional.empty());
+        var attendees = List.of(new Attendee(30, false));
+
+        assertThrows(UnknownEventException.class, () -> purchaseService.purchase("opera-gala", attendees));
     }
 
     @Test
-    @Disabled("Exercise 6.3")
     void storesNothingForUnknownEvent() {
-        // TODO Exercise 6.3: nothing is saved for an unknown event, use verifyNoInteractions
+        when(eventRepository.findById("opera-gala")).thenReturn(Optional.empty());
+        var attendees = List.of(new Attendee(30, false));
+
+        assertThrows(UnknownEventException.class, () -> purchaseService.purchase("opera-gala", attendees));
+
+        verifyNoInteractions(purchaseRepository);
     }
 
     @Test
-    @Disabled("Exercise 6.4")
     void storedPurchaseCanBeFoundWithInMemoryFakes() {
-        // TODO Exercise 6.4: use InMemoryEventRepository and InMemoryPurchaseRepository instead of mocks
+        var inMemoryPurchaseRepository = new InMemoryPurchaseRepository();
+        var serviceWithFakes = new TicketPurchaseService(
+                new InMemoryEventRepository(),
+                inMemoryPurchaseRepository,
+                new TicketPriceCalculator());
+
+        var purchase = serviceWithFakes.purchase("jazz-brunch", List.of(new Attendee(30, false)));
+
+        assertEquals(Optional.of(purchase), inMemoryPurchaseRepository.findById(purchase.purchaseId()));
     }
 }
