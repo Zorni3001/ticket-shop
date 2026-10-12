@@ -1,8 +1,10 @@
 package com.example.ticketshop.pricing;
 
 import static com.example.ticketshop.MoneyAssertions.assertAmount;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -23,27 +25,36 @@ class TicketPriceCalculatorTest {
     }
 
     @Test
-    @Disabled("Exercise 1.1")
     void chargesServiceFeeOncePerOrder() {
-        // TODO Exercise 1.1: several adults, the service fee is added only once
+        var attendees = List.of(new Attendee(30, false), new Attendee(40, false), new Attendee(50, false));
+
+        var price = calculator.calculate(BASE_PRICE, attendees);
+
+        assertAmount("2.00", price.serviceFee());
+        assertAmount("151.70", price.total());
     }
 
     @Test
-    @Disabled("Exercise 1.2")
     void acceptsTwentyAttendees() {
-        // TODO Exercise 1.2: an order with twenty attendees is accepted
+        var attendees = Collections.nCopies(20, new Attendee(30, false));
+
+        var price = calculator.calculate(BASE_PRICE, attendees);
+
+        assertAmount("998.00", price.subtotal());
     }
 
     @Test
-    @Disabled("Exercise 1.3")
     void rejectsMoreThanTwentyAttendees() {
-        // TODO Exercise 1.3: an order with more than twenty attendees is rejected, use assertThrows
+        var attendees = Collections.nCopies(21, new Attendee(30, false));
+
+        assertThrows(IllegalArgumentException.class, () -> calculator.calculate(BASE_PRICE, attendees));
     }
 
     @Test
-    @Disabled("Exercise 1.4")
     void rejectsOrderWithoutAttendees() {
-        // TODO Exercise 1.4: an order without attendees is rejected
+        var attendees = List.<Attendee>of();
+
+        assertThrows(IllegalArgumentException.class, () -> calculator.calculate(BASE_PRICE, attendees));
     }
 
     @Test
