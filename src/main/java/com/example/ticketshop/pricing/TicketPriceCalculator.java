@@ -19,7 +19,7 @@ public class TicketPriceCalculator {
         var subtotal = attendees.stream()
                 .map(attendee -> ticketPrice(basePrice, attendee))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        var bulkDiscount = bulkDiscountPolicy.discountFor(attendees.size(), subtotal.add(SERVICE_FEE));
+        var bulkDiscount = bulkDiscountPolicy.discountFor(attendees.size(), subtotal);
         var total = subtotal.subtract(bulkDiscount).add(SERVICE_FEE);
         return new PriceBreakdown(subtotal, bulkDiscount, SERVICE_FEE, total);
     }
