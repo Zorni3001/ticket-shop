@@ -1,5 +1,6 @@
 package com.example.ticketshop.http;
 
+import static com.example.ticketshop.MoneyAssertions.assertAmount;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.example.ticketshop.pricing.Attendee;
@@ -9,9 +10,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -44,27 +46,41 @@ class TicketPurchaseIT {
     }
 
     @Test
-    @Disabled("Exercise 5.1")
-    void purchasesTicketsForKnownEvent() {
-        // TODO Exercise 5.1: a purchase for a known event returns 201, application/json and the correct total
+    void purchasesTicketsForKnownEvent() throws Exception {
+        var request = new PurchaseRequest("rock-night", List.of(new Attendee(30, false), new Attendee(22, true)));
+
+        var response = postTickets(toJson(request));
+
+        assertEquals(201, response.statusCode());
+        assertEquals(Optional.of("application/json"), response.headers().firstValue("Content-Type"));
+        var body = JSON_MAPPER.readTree(response.body());
+        assertEquals(2, body.at("/ticketCount").intValue());
+        assertAmount("91.82", body.at("/price/total").decimalValue());
     }
 
     @Test
-    @Disabled("Exercise 5.2")
-    void returnsNotFoundForUnknownEvent() {
-        // TODO Exercise 5.2: an unknown event returns 404
+    void returnsNotFoundForUnknownEvent() throws Exception {
+        var request = new PurchaseRequest("opera-gala", List.of(new Attendee(30, false)));
+
+        var response = postTickets(toJson(request));
+
+        assertEquals(404, response.statusCode());
     }
 
     @Test
-    @Disabled("Exercise 5.3")
-    void returnsBadRequestForOrderWithoutAttendees() {
-        // TODO Exercise 5.3: an order without attendees returns 400
+    void returnsBadRequestForOrderWithoutAttendees() throws Exception {
+        var request = new PurchaseRequest("rock-night", List.of());
+
+        var response = postTickets(toJson(request));
+
+        assertEquals(400, response.statusCode());
     }
 
     @Test
-    @Disabled("Exercise 5.4")
-    void returnsBadRequestForMalformedJson() {
-        // TODO Exercise 5.4: malformed JSON returns 400
+    void returnsBadRequestForMalformedJson() throws Exception {
+        var response = postTickets("{ this is not json");
+
+        assertEquals(400, response.statusCode());
     }
 
     private static HttpResponse<String> postTickets(String body) throws IOException, InterruptedException {
