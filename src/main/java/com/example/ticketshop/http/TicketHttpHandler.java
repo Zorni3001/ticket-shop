@@ -1,5 +1,6 @@
 package com.example.ticketshop.http;
 
+import com.example.ticketshop.event.UnknownEventException;
 import com.example.ticketshop.purchase.TicketPurchaseService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -31,6 +32,8 @@ public class TicketHttpHandler implements HttpHandler {
             sendJson(exchange, 400, new ErrorResponse("Invalid request: " + e.getOriginalMessage()));
         } catch (IllegalArgumentException e) {
             sendJson(exchange, 400, new ErrorResponse(e.getMessage()));
+        } catch (UnknownEventException e) {
+            sendJson(exchange, 404, new ErrorResponse(e.getMessage()));
         } catch (RuntimeException e) {
             sendJson(exchange, 500, new ErrorResponse("Internal server error"));
         }
