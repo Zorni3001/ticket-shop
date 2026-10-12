@@ -1,0 +1,34 @@
+@baseUrl = http://localhost:8080
+
+### Buy tickets for a mixed group
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+    "eventId": "rock-night",
+    "attendees": [
+        { "age": 30, "student": false },
+        { "age": 70, "student": false },
+        { "age": 22, "student": true }
+    ]
+}
+
+### Unknown event
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+    "eventId": "opera-gala",
+    "attendees": [
+        { "age": 30, "student": false }
+    ]
+}
+
+### Order without attendees
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+    "eventId": "jazz-brunch",
+    "attendees": []
+}
