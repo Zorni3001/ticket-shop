@@ -13,8 +13,8 @@ public class TicketPriceCalculator {
     private final BulkDiscountPolicy bulkDiscountPolicy = new BulkDiscountPolicy();
 
     public PriceBreakdown calculate(BigDecimal basePrice, List<Attendee> attendees) {
-        if (attendees.size() > MAX_ATTENDEES) {
-            throw new IllegalArgumentException("An order must not contain more than " + MAX_ATTENDEES + " attendees");
+        if (attendees.isEmpty() || attendees.size() > MAX_ATTENDEES) {
+            throw new IllegalArgumentException("An order must contain between 1 and " + MAX_ATTENDEES + " attendees");
         }
         var subtotal = attendees.stream()
                 .map(attendee -> ticketPrice(basePrice, attendee))
