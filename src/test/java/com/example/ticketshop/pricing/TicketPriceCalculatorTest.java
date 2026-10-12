@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class TicketPriceCalculatorTest {
@@ -58,8 +57,11 @@ class TicketPriceCalculatorTest {
     }
 
     @Test
-    @Disabled("Exercise 2.4")
     void roundsDiscountedTicketPriceToCents() {
-        // TODO Exercise 2.4: discounted ticket prices are rounded to cents (half up), pick a base price with more than two decimals after the discount
+        var attendees = List.of(new Attendee(70, false));
+
+        var price = calculator.calculate(new BigDecimal("12.35"), attendees);
+
+        assertAmount("8.65", price.subtotal());
     }
 }
